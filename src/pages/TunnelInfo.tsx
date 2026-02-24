@@ -4,10 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 
 import * as fs from "fs";
 import * as path from "path";
+import { ipcRenderer } from "electron";
 import { checkWgIsInstalled, WgConfig } from "wireguard-tools";
 
-import { Button, Flex, Input, Text, Textarea } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { Button, Flex, Input, Text, Textarea, IconButton, Tooltip } from "@chakra-ui/react";
+import { DeleteIcon, ViewIcon, ViewOffIcon, DownloadIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 
 import * as WireGuard from "../utils/wg";
@@ -32,15 +33,21 @@ interface TunnelParam {
   name: string;
 }
 
+function maskSecrets(text: string): string {
+  return text
+    .replace(/(PrivateKey\s*=\s*)(\S+)/g, "$1****************************")
+    .replace(/(PresharedKey\s*=\s*)(\S+)/g, "$1****************************");
+}
+
 export default function TunnelInfo() {
   const history = useHistory();
   const dispatch = useDispatch();
   const [wgConfigFile, setWgConfigFile] = useState<WgConfigFile>();
   const [fileName, setFileName] = useState<string>("");
   const [interfaceText, setInterfaceText] = useState<string>("");
-  const [originalInterfaceText, setOriginalInterfaceText] = useState<string>(
-    ""
-  );
+  const [originalInterfaceText, setOriginalInterfaceText] = useState<string>("");
+  const [hideSecrets, setHideSecrets] = useState<boolean>(true);
+
   const { name } = useParams<TunnelParam>();
   const { files } = useSelector<StoreState, WgConfigState>(
     (state) => state.wgConfig
@@ -51,11 +58,9 @@ export default function TunnelInfo() {
 
   useEffect(() => {
     const filePath = path.join(userDataPath, "configurations", `${name}.conf`);
-
     const data = fs.readFileSync(filePath, "utf-8");
     const config = new WgConfig({});
     config.parse(data);
-
     setFileName(name);
     setInterfaceText(config.toString());
     setOriginalInterfaceText(config.toString());
@@ -71,7 +76,6 @@ export default function TunnelInfo() {
       toast("Could not load config file", { type: "error" });
       return;
     }
-
     try {
       const started = await WireGuard.toggle(wgConfigFile.path);
       const message = started ? "Activated" : "Deactivated";
@@ -93,12 +97,10 @@ export default function TunnelInfo() {
       toast(`Could not find config for ${name}`, { type: "error" });
       return;
     }
-
     if (wgConfigFile.active) {
       toast("Stop the tunnel before deleting", { type: "error" });
       return;
     }
-
     try {
       dispatch(deleteFile(wgConfigFile, userDataPath));
       history.push("/");
@@ -112,12 +114,10 @@ export default function TunnelInfo() {
       toast(`A tunnel named ${fileName} already exists`, { type: "error" });
       return;
     }
-
     if (fileName.length > 15) {
       toast("Filename is too long, maximum 15 characters", { type: "error" });
       return;
     }
-
     try {
       if (wgConfigFile) {
         if (wgConfigFile.active) {
@@ -127,7 +127,6 @@ export default function TunnelInfo() {
         dispatch(deleteFile(wgConfigFile, userDataPath));
       }
       dispatch(addFile(`${fileName}.conf`, interfaceText, userDataPath));
-
       if (fileName !== name) {
         const lastConnectAt = localStorage.getItem(name);
         if (lastConnectAt) {
@@ -136,12 +135,22 @@ export default function TunnelInfo() {
         }
         history.push(`/tunnel/${fileName}`);
       }
-
       setOriginalInterfaceText(interfaceText);
       dispatch(fetchFiles(userDataPath));
     } catch (e) {
       toast(e.message, { type: "error" });
     }
+  }
+
+  async function handleExport(): Promise<void> {
+    ipcRenderer.once("export-config-reply", (event, result: { success: boolean; filePath?: string; error?: string }) => {
+      if (result.success) {
+        toast(`Exported to ${result.filePath}`, { type: "success" });
+      } else if (result.error) {
+        toast(`Export failed: ${result.error}`, { type: "error" });
+      }
+    });
+    ipcRenderer.send("export-config", { fileName, content: interfaceText });
   }
 
   function isAllowedToSave(): boolean {
@@ -156,15 +165,15 @@ export default function TunnelInfo() {
     setFileName(event.target.value);
   }
 
-  function onInterfaceTextChange(
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ): void {
+  function onInterfaceTextChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
     setInterfaceText(event.target.value);
   }
 
   function handleCancel() {
     history.push("/");
   }
+
+  const displayedText = hideSecrets ? maskSecrets(interfaceText) : interfaceText;
 
   return (
     <Content>
@@ -179,20 +188,43 @@ export default function TunnelInfo() {
         mx="auto"
         my="10"
       >
-        <Flex justify="space-between" w="100%">
+        <Flex justify="space-between" w="100%" align="center">
           <Text color="whiteAlpha.800" fontSize="lg" fontWeight="bold">
             {name}
           </Text>
-          <DialogButton
-            title="Delete"
-            color="whiteAlpha.800"
-            colorScheme="red"
-            header="Are you sure?"
-            body="You cannot recover this file after deleting."
-            onConfirm={handleDelete}
-            launchButtonText={<DeleteIcon />}
-          />
+          <Flex gap="2" align="center">
+            <Tooltip label="Export .conf" placement="top">
+              <IconButton
+                aria-label="Export config"
+                icon={<DownloadIcon />}
+                size="sm"
+                variant="ghost"
+                color="whiteAlpha.800"
+                onClick={handleExport}
+              />
+            </Tooltip>
+            <Tooltip label={hideSecrets ? "Show secrets" : "Hide secrets"} placement="top">
+              <IconButton
+                aria-label={hideSecrets ? "Show secrets" : "Hide secrets"}
+                icon={hideSecrets ? <ViewIcon /> : <ViewOffIcon />}
+                size="sm"
+                variant="ghost"
+                color="whiteAlpha.800"
+                onClick={() => setHideSecrets(!hideSecrets)}
+              />
+            </Tooltip>
+            <DialogButton
+              title="Delete"
+              color="whiteAlpha.800"
+              colorScheme="red"
+              header="Are you sure?"
+              body="You cannot recover this file after deleting."
+              onConfirm={handleDelete}
+              launchButtonText={<DeleteIcon />}
+            />
+          </Flex>
         </Flex>
+
         <Flex align="center" mt="4" w="100%">
           <Text>Name:</Text>
           <Input
@@ -205,8 +237,16 @@ export default function TunnelInfo() {
             onChange={onNameChange}
           />
         </Flex>
+
         <Flex direction="column" mt="4" w="100%" h="100%">
-          <Text fontWeight="medium">Interface:&nbsp;</Text>
+          <Flex align="center" justify="space-between">
+            <Text fontWeight="medium">Interface:&nbsp;</Text>
+            {hideSecrets && (
+              <Text fontSize="xs" color="whiteAlpha.500" fontStyle="italic">
+                🔒 Keys are hidden
+              </Text>
+            )}
+          </Flex>
           <Textarea
             bg="gray.300"
             borderColor="transparent"
@@ -215,10 +255,13 @@ export default function TunnelInfo() {
             mt="2"
             w="100%"
             h="100%"
-            value={interfaceText}
-            onChange={onInterfaceTextChange}
+            value={hideSecrets ? displayedText : interfaceText}
+            onChange={hideSecrets ? undefined : onInterfaceTextChange}
+            readOnly={hideSecrets}
+            opacity={hideSecrets ? 0.8 : 1}
           />
         </Flex>
+
         <Flex justify="flex-end" mt="4">
           <Button size="sm" onClick={handleCancel}>
             Cancel
