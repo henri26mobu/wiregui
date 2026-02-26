@@ -24,7 +24,7 @@ ipcMain.on("export-config", async (event, { fileName, content }: { fileName: str
   }
 });
 
-require("update-electron-app")();// eslint-disable-line @typescript-eslint/no-var-requires
+try { require("update-electron-app")(); } catch(e) { console.log("update-electron-app skipped:", e.message); }// eslint-disable-line @typescript-eslint/no-var-requires
 
 if (require("electron-squirrel-startup")) { // eslint-disable-line global-require
   app.quit();
