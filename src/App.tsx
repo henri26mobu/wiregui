@@ -5,7 +5,7 @@ import { RecoilRoot } from "recoil";
 import { ipcRenderer } from "electron";
 import { checkWgIsInstalled } from "wireguard-tools";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.min.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import AppProvider from "./context";
 import Routes from "./routes/index";
@@ -114,7 +114,7 @@ function App() {
   return (
     <AppProvider>
       <Routes />
-      <ToastContainer pauseOnFocusLoss={false} />
+      <ToastContainer pauseOnFocusLoss={false} theme="dark" toastStyle={{ backgroundColor: "#2A2A2A", color: "#FF6C0E" }} />
     </AppProvider>
   );
 }
