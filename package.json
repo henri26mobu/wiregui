@@ -86,9 +86,9 @@
         }
       ],
       "plugins": [
-        [
-          "@electron-forge/plugin-webpack",
-          {
+        {
+          "name": "@electron-forge/plugin-webpack",
+          "config": {
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",
@@ -101,18 +101,19 @@
               ]
             }
           }
-        ]
+        }
       ]
     }
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
-    "@electron-forge/maker-deb": "^6.0.0-beta.54",
-    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
-    "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "@electron-forge/plugin-webpack": "6.0.0-beta.54",
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-dmg": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-webpack": "^7.11.1",
+    "@electron-forge/publisher-github": "^7.11.1",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
@@ -135,7 +136,6 @@
   "dependencies": {
     "@chakra-ui/icons": "^1.0.10",
     "@chakra-ui/react": "^1.5.1",
-    "@electron-forge/publisher-github": "^6.0.0-beta.54",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "date-fns": "^2.21.1",
