@@ -1,21 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "strict": true,
-    "allowJs": true,
-    "module": "commonjs",
+    "strict": false,
+    "useUnknownInCatchVariables": false,
     "skipLibCheck": true,
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "jsx": "react",
     "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "baseUrl": "./src",
-    "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "jsx": "react",
-    "paths": {
-      "*": ["node_modules/*"]
-    }
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
