@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.min.css";
 
 import AppProvider from "./context";
 import Routes from "./routes/index";
-import store from "./store";
+import store, { AppDispatch } from "./store";
 
 import * as WireGuard from "./utils/wg";
 import {
@@ -20,7 +20,7 @@ import {
 import { AppState, StoreState, WgConfigState } from "./types/store";
 
 function App() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { files } = useSelector<StoreState, WgConfigState>(
     (state) => state.wgConfig
   );

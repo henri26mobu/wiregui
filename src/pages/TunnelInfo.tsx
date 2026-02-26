@@ -1,3 +1,4 @@
+import { AppDispatch } from "../store";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
@@ -41,7 +42,7 @@ function maskSecrets(text: string): string {
 
 export default function TunnelInfo() {
   const history = useHistory();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [wgConfigFile, setWgConfigFile] = useState<WgConfigFile>();
   const [fileName, setFileName] = useState<string>("");
   const [interfaceText, setInterfaceText] = useState<string>("");

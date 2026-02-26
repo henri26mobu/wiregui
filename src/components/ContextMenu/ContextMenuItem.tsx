@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil";
 import { contextMenusAtom } from "./model";
 
 type Props = {
+  children?: React.ReactNode;
   color?: string;
   colorScheme?: string;
   disabled?: boolean;

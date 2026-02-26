@@ -4,6 +4,7 @@ import React, { MouseEvent } from "react";
 import { useRecoilState } from "recoil";
 
 type Props = {
+  children?: React.ReactNode;
   menuId: string;
   passData?: unknown; // pass arbitrary data to the ContextMenuList (render prop) and the ContextMenuItem (onClick function)
   onTrigger?: () => void; // run an optional function on right click trigger
