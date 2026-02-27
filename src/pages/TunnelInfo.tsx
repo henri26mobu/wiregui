@@ -8,8 +8,10 @@ import * as path from "path";
 import { ipcRenderer } from "electron";
 import { checkWgIsInstalled, WgConfig } from "wireguard-tools";
 
-import { Button, Flex, Input, Text, Textarea, IconButton, Tooltip } from "@chakra-ui/react";
+import { Button, Flex, Input, Text, Textarea, IconButton, Tooltip, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import { DeleteIcon, ViewIcon, ViewOffIcon, DownloadIcon } from "@chakra-ui/icons";
+import QRCode from "qrcode";
+import { BsQrCode } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 import * as WireGuard from "../utils/wg";
@@ -49,6 +51,9 @@ export default function TunnelInfo() {
   const [interfaceText, setInterfaceText] = useState<string>("");
   const [originalInterfaceText, setOriginalInterfaceText] = useState<string>("");
   const [hideSecrets, setHideSecrets] = useState<boolean>(true);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [qrContent, setQrContent] = useState<string>("");
+  const { isOpen: isQrOpen, onOpen: onQrOpen, onClose: onQrClose } = useDisclosure();
 
   const { name } = useParams<TunnelParam>();
   const { files } = useSelector<StoreState, WgConfigState>(
@@ -156,7 +161,24 @@ export default function TunnelInfo() {
   }
 
   function isAllowedToSave(): boolean {
-    return (
+    async function handleQrCode() {
+    try {
+      const content = wgConfigFile ? fs.readFileSync(wgConfigFile.path, "utf-8") : originalInterfaceText;
+      // Validation basique
+      if (!content.includes("[Interface]") || !content.includes("PrivateKey")) {
+        toast("Config invalide ou clés masquées", { type: "error" });
+        return;
+      }
+      const url = await QRCode.toDataURL(content, { width: 512, margin: 2, errorCorrectionLevel: "M" });
+      setQrDataUrl(url);
+      setQrContent(content);
+      onQrOpen();
+    } catch (e) {
+      toast("Failed to generate QR code", { type: "error" });
+    }
+  }
+
+  return (
       (fileName !== name || interfaceText !== originalInterfaceText) &&
       fileName.length > 0 &&
       interfaceText.length > 0
@@ -176,6 +198,23 @@ export default function TunnelInfo() {
   }
 
   const displayedText = hideSecrets ? maskSecrets(interfaceText) : interfaceText;
+
+  async function handleQrCode() {
+    try {
+      const content = wgConfigFile ? fs.readFileSync(wgConfigFile.path, "utf-8") : originalInterfaceText;
+      // Validation basique
+      if (!content.includes("[Interface]") || !content.includes("PrivateKey")) {
+        toast("Config invalide ou clés masquées", { type: "error" });
+        return;
+      }
+      const url = await QRCode.toDataURL(content, { width: 512, margin: 2, errorCorrectionLevel: "M" });
+      setQrDataUrl(url);
+      setQrContent(content);
+      onQrOpen();
+    } catch (e) {
+      toast("Failed to generate QR code", { type: "error" });
+    }
+  }
 
   return (
     <Content>
@@ -203,6 +242,16 @@ export default function TunnelInfo() {
                 variant="ghost"
                 color="whiteAlpha.800"
                 onClick={handleExport}
+              />
+            </Tooltip>
+            <Tooltip label="QR Code" placement="top">
+              <IconButton
+                aria-label="Show QR code"
+                icon={<BsQrCode />}
+                size="sm"
+                variant="ghost"
+                color="whiteAlpha.800"
+                onClick={handleQrCode}
               />
             </Tooltip>
             <Tooltip label={hideSecrets ? "Show secrets" : "Hide secrets"} placement="top">
@@ -282,6 +331,19 @@ export default function TunnelInfo() {
           )}
         </Flex>
       </Flex>
+      <Modal isOpen={isQrOpen} onClose={onQrClose} isCentered size="lg">
+        <ModalOverlay />
+        <ModalContent bg="gray.200" color="whiteAlpha.800">
+          <ModalHeader>QR Code — {name}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <Flex direction="column" align="center" gap={4}>
+              {qrDataUrl && <img src={qrDataUrl} alt="QR Code" />}
+
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Content>
   );
 }
