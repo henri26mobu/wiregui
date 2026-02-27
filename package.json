@@ -43,7 +43,11 @@
           "name": "@electron-forge/maker-deb",
           "config": {
             "options": {
-              "icon": "./src/assets/icons/icon.png"
+              "icon": "./src/assets/icons/icon.png",
+              "scripts": {
+                "postinst": "./scripts/postinst.sh",
+                "postrm": "./scripts/postrm.sh"
+              }
             }
           }
         },

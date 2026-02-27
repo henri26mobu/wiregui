@@ -4,6 +4,7 @@ import { TrayMenu } from "./main/TrayMenu";
 import { MenuBar } from "./main/MenuBar";
 import { getIconsPath } from "./utils";
 import "./ipc/main";
+import "./ipc/main/ipcStats";
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 ipcMain.on("export-config", async (event, { fileName, content }: { fileName: string; content: string }) => {

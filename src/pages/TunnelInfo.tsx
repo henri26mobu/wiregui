@@ -29,6 +29,7 @@ import {
 
 import { DialogButton } from "../components/Dialog";
 import Content from "../components/Content";
+import WgStats from "../components/WgStats";
 
 interface TunnelParam {
   name: string;
@@ -262,6 +263,10 @@ export default function TunnelInfo() {
             opacity={hideSecrets ? 0.8 : 1}
           />
         </Flex>
+
+        {wgConfigFile && wgConfigFile.active && (
+          <WgStats tunnelName={name} />
+        )}
 
         <Flex justify="flex-end" mt="4">
           <Button size="sm" onClick={handleCancel}>
