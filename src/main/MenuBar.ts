@@ -68,7 +68,7 @@ export class MenuBar {
             label: "Learn More",
             click: async () => {
               (await import("electron")).shell.openExternal(
-                "https://github.com/Devsfy/wiregui"
+                "https://github.com/henri26mobu/wiregui"
               );
             },
           },

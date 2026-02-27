@@ -1,7 +1,7 @@
 {
   "name": "wiregui",
   "productName": "wiregui",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "A graphical user interface for wireguard",
   "main": ".webpack/main",
   "scripts": {
@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Devsfy/wiregui"
+    "url": "https://github.com/henri26mobu/wiregui"
   },
   "config": {
     "forge": {
