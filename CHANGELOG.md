@@ -1,11 +1,15 @@
 # Changelog
 
-## [1.8.3] - 2026-02-27
+## [1.8.4] - 2026-02-27
+### Ajouts
+- Stats en temps réel du tunnel actif (bandwidth, handshake, peers) 📊
+- Authentification polkit pour le toggle VPN (remplace sudo-prompt deprecated) 🔐
+- Règle polkit installée/supprimée automatiquement avec le `.deb`
 
+## [1.8.3] - 2026-02-27
 ### Ajouts
 - Export de la configuration tunnel en fichier `.conf` 📤
 - Masquer/afficher les clés privées dans l'interface 👁
-
 ### Migration technique
 - Electron 12 → 28
 - Node 16 → 20
@@ -20,7 +24,6 @@
 - immer 9 → 11
 - recoil 0.3 → 0.7
 - @emotion/react + @emotion/styled mis à jour pour compatibilité Chakra v2
-
 ### Corrections
 - MotionBox réécrit pour compatibilité framer-motion v10 + Chakra v2
 - fork-ts-checker-webpack-plugin désactivé (incompatible TS5)
@@ -29,13 +32,11 @@
 - ToastContainer en thème dark orange
 
 ## [1.8.2] - 2026-02-24
-
 ### Ajouts
 - Export de la configuration tunnel en fichier `.conf`
 - Masquer/afficher les clés privées
 
 ## [1.8.1] - Original Devsfy
-
 ### Fonctionnalités de base
 - Connexion/déconnexion tunnels WireGuard
 - Liste des tunnels

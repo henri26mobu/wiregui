@@ -3,41 +3,31 @@
 </p>
 
 # Wire GUI
-
 Wire GUI is a cross-platform graphical user interface for [WireGuard](https://www.wireguard.com/).
 
 > **Fork maintenu par [@henri26mobu](https://github.com/henri26mobu/wiregui)**  
 > Basé sur le projet original de [Devsfy](https://github.com/Devsfy/wiregui), non maintenu depuis 2021.
 
 ## Fonctionnalités
-
 - Connexion et déconnexion aux tunnels WireGuard
 - Liste de tous les tunnels sauvegardés
 - Affichage de la date de dernière connexion
 - Affichage du tunnel actif
 - Masquer/afficher les clés privées 👁
 - Export de la configuration en fichier `.conf` 📤
+- Stats en temps réel du tunnel actif 📊
+- Authentification polkit pour le toggle VPN 🔐
 
 ## Téléchargement
-
 Voir la page [releases](https://github.com/henri26mobu/wiregui/releases)
 
-## Stack technique
+## Prérequis
+- WireGuard installé (`sudo apt install wireguard`)
+- Polkit installé (inclus par défaut sur la plupart des distributions)
 
+## Stack technique
 - Electron 28
 - React 18
 - Chakra UI 2
 - TypeScript 5
-- Redux + redux-thunk
-- Webpack 5
-
-## Build
-```bash
-nvm use 20
-npm install --legacy-peer-deps
-npx electron-forge make --targets @electron-forge/maker-deb
-```
-
-## Licence
-
-MIT
+- Node 20
