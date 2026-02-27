@@ -1,7 +1,7 @@
 {
   "name": "wiregui",
   "productName": "wiregui",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "A graphical user interface for wireguard",
   "main": ".webpack/main",
   "scripts": {
@@ -47,7 +47,13 @@
               "scripts": {
                 "postinst": "./scripts/postinst.sh",
                 "postrm": "./scripts/postrm.sh"
-              }
+              },
+              "extraFiles": [
+                {
+                  "src": "./policies/org.wiregui.toggle.policy",
+                  "dest": "/usr/share/wiregui/org.wiregui.toggle.policy"
+                }
+              ]
             }
           }
         },
