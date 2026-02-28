@@ -54,6 +54,8 @@ jobs:
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
-          files: out/make/*.dmg
+          files: |
+            out/make/*.dmg
+            out/make/dmg/**/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
