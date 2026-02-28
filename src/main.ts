@@ -1,4 +1,17 @@
 import { app, autoUpdater, BrowserWindow, dialog, ipcMain, Menu } from "electron";
+
+// Fix PATH for macOS (Homebrew not in Electron PATH)
+if (process.platform === "darwin") {
+  process.env.PATH = [
+    "/usr/local/bin",
+    "/opt/homebrew/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+    process.env.PATH
+  ].join(":");
+}
 import * as fs from "fs";
 import { TrayMenu } from "./main/TrayMenu";
 import { MenuBar } from "./main/MenuBar";
