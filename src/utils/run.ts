@@ -33,7 +33,9 @@ export async function run(command: string, sudoPrompt = true) {
         );
       } else if (process.platform === "darwin") {
         // macOS : osascript dialog natif
-        const escaped = command.replace(/"/g, '\\"');
+        // Inject PATH for Homebrew binaries
+        const fullCommand = `PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin ${command}`;
+        const escaped = fullCommand.replace(/"/g, '\\"');
         child.exec(
           `osascript -e "do shell script \"${escaped}\" with administrator privileges"`,
           function (error, stdout, stderr) {
