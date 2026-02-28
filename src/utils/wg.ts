@@ -57,7 +57,7 @@ export async function start(filePath: string): Promise<void> {
   if (process.platform === "win32") {
     await run(`wireguard /installtunnelservice ${filePath}`);
   } else {
-    await run(`wg-quick up '${filePath}'`);
+    await run(`wg-quick up ${filePath.replace(" ", "\\ ")}`);
   }
 }
 
@@ -65,7 +65,7 @@ export async function stop(filePath: string): Promise<void> {
   if (process.platform === "win32") {
     await run(`wireguard /uninstalltunnelservice ${getNameFromPath(filePath)}`);
   } else {
-    await run(`wg-quick down '${filePath}'`);
+    await run(`wg-quick down ${filePath.replace(" ", "\\ ")}`);
   }
 }
 
