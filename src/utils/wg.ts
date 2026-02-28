@@ -2,7 +2,10 @@ import { run } from "./run";
 
 export async function getActiveTunnelName(): Promise<string> {
   try {
-    const data = await run("wg show", false);
+    const wgCmd = process.platform === "darwin"
+      ? "PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin sudo wg show"
+      : "wg show";
+    const data = await run(wgCmd, false);
     if (data.stderr) {
       throw new Error(Buffer.isBuffer(data.stderr) ? data.stderr.toString("utf-8") : data.stderr);
     }
