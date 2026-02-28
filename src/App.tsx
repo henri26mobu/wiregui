@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import AppProvider from "./context";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Text } from "@chakra-ui/react";
 import Routes from "./routes/index";
 import store, { AppDispatch } from "./store";
 
@@ -27,6 +28,25 @@ function App() {
   const { userDataPath } = useSelector<StoreState, AppState>(
     (state) => state.app
   );
+
+  const [setupRequired, setSetupRequired] = React.useState(false);
+
+  useEffect(() => {
+    if (process.platform === "darwin") {
+      ipcRenderer.on("setup-required", () => setSetupRequired(true));
+    }
+    return () => { ipcRenderer.removeAllListeners("setup-required"); };
+  }, []);
+
+  async function handleInstallSudoers() {
+    const result = await ipcRenderer.invoke("install-sudoers-macos") as { success: boolean; error?: string };
+    if (result.success) {
+      setSetupRequired(false);
+      toast("Configuration installed successfully", { type: "success" });
+    } else {
+      toast("Failed to install configuration: " + result.error, { type: "error" });
+    }
+  }
 
   useEffect(() => {
     ipcRenderer.removeAllListeners("importFiles");
@@ -114,6 +134,20 @@ function App() {
   return (
     <AppProvider>
       <Routes />
+      <Modal isOpen={setupRequired} onClose={() => {}} isCentered closeOnOverlayClick={false}>
+        <ModalOverlay />
+        <ModalContent bg="gray.200" color="whiteAlpha.800">
+          <ModalHeader>Configuration requise</ModalHeader>
+          <ModalBody>
+            <Text>WireGUI a besoin d'installer une règle de permissions pour afficher les stats du tunnel.</Text>
+            <Text mt={2} fontSize="sm" color="whiteAlpha.600">Votre mot de passe administrateur sera demandé.</Text>
+          </ModalBody>
+          <ModalFooter gap={2}>
+            <Button variant="ghost" onClick={() => setSetupRequired(false)}>Plus tard</Button>
+            <Button colorScheme="orange" onClick={handleInstallSudoers}>Installer</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <ToastContainer pauseOnFocusLoss={false} theme="dark" toastStyle={{ backgroundColor: "#2A2A2A", color: "#FF6C0E" }} />
     </AppProvider>
   );

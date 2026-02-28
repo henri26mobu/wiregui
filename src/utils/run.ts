@@ -1,4 +1,5 @@
 import child from "child_process";
+import sudo from "sudo-prompt";
 
 interface ExecResponse {
   stdout?: string | Buffer;
@@ -17,20 +18,57 @@ class ExecError extends Error {
 
 export async function run(command: string, sudoPrompt = true) {
   return new Promise<ExecResponse>((resolve, reject) => {
-    const finalCommand = sudoPrompt ? `pkexec ${command}` : command;
-    child.exec(
-      finalCommand,
-      function (
-        error: child.ExecException | null,
-        stdout: string,
-        stderr: string
-      ) {
-        if (!error) {
-          resolve({ stdout, stderr });
-        } else {
-          reject(new ExecError(error, stdout, stderr));
-        }
+    if (sudoPrompt) {
+      if (process.platform === "linux") {
+        // Linux : pkexec (polkit)
+        child.exec(
+          `pkexec ${command}`,
+          function (error, stdout, stderr) {
+            if (!error) {
+              resolve({ stdout, stderr });
+            } else {
+              reject(new ExecError(error, stdout, stderr));
+            }
+          }
+        );
+      } else if (process.platform === "darwin") {
+        // macOS : osascript dialog natif
+        const escaped = command.replace(/"/g, '\\"');
+        child.exec(
+          `osascript -e "do shell script \"${escaped}\" with administrator privileges"`,
+          function (error, stdout, stderr) {
+            if (!error) {
+              resolve({ stdout, stderr });
+            } else {
+              reject(new ExecError(error, stdout, stderr));
+            }
+          }
+        );
+      } else {
+        // Fallback : sudo-prompt
+        sudo.exec(
+          command,
+          { name: "wiregui" },
+          function (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) {
+            if (!error) {
+              resolve({ stdout, stderr });
+            } else {
+              reject(new ExecError(error, stdout, stderr));
+            }
+          }
+        );
       }
-    );
+    } else {
+      child.exec(
+        command,
+        function (error, stdout, stderr) {
+          if (!error) {
+            resolve({ stdout, stderr });
+          } else {
+            reject(new ExecError(error, stdout, stderr));
+          }
+        }
+      );
+    }
   });
 }

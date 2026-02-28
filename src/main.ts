@@ -5,6 +5,7 @@ import { MenuBar } from "./main/MenuBar";
 import { getIconsPath } from "./utils";
 import "./ipc/main";
 import "./ipc/main/ipcStats";
+import { checkSudoersSetup } from "./ipc/main/ipcSetup";
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 ipcMain.on("export-config", async (event, { fileName, content }: { fileName: string; content: string }) => {
@@ -53,6 +54,9 @@ const createWindow = (): void => {
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.webContents.once("did-finish-load", () => {
+    checkSudoersSetup(mainWindow);
+  });
 
   if (isDevelopement) {
     mainWindow.webContents.openDevTools();
