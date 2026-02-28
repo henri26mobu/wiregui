@@ -10,21 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-
       - name: Build .deb
         run: npx electron-forge make --targets @electron-forge/maker-deb
-
-      - name: List output files
-        run: find out/ -type f -name "*.dmg"
-
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
@@ -32,36 +25,44 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-macos:
-    runs-on: macos-latest
+  build-macos-x64:
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-
       - name: Install appdmg
         run: npm install --save-dev appdmg
-
-      - name: Build .dmg
-        run: npx electron-forge make --targets @electron-forge/maker-dmg
-
-      - name: List output files
-        run: find out/ -type f
-
-      - name: List output files
-        run: find out/ -type f -name "*.dmg"
-
+      - name: Build .dmg x64
+        run: npx electron-forge make --targets @electron-forge/maker-dmg --arch x64
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            out/make/*.dmg
-            out/make/dmg/**/*.dmg
+          files: out/make/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Install appdmg
+        run: npm install --save-dev appdmg
+      - name: Build .dmg arm64
+        run: npx electron-forge make --targets @electron-forge/maker-dmg --arch arm64
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/make/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
