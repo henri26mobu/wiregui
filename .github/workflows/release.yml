@@ -6,7 +6,26 @@ on:
       - 'v*'
 
 jobs:
-  build-linux:
+  build-linux-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build .deb
+        run: npx electron-forge make --targets @electron-forge/maker-deb
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/make/deb/x64/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux-rpm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,23 +37,31 @@ jobs:
         run: npm install --legacy-peer-deps
       - name: Install RPM tools
         run: sudo apt-get install -y rpm
-
-      - name: Build .deb
-        run: npx electron-forge make --targets @electron-forge/maker-deb
-
       - name: Build .rpm
         run: npx electron-forge make --targets @electron-forge/maker-rpm
-
-      - name: Build .AppImage
-        run: npx electron-forge make --targets electron-forge-maker-appimage
-
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            out/make/deb/x64/*.deb
-            out/make/rpm/x64/*.rpm
-            out/make/*.AppImage
+          files: out/make/rpm/x64/*.rpm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux-appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build .AppImage
+        run: npx electron-forge make --targets electron-forge-maker-appimage
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/make/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
