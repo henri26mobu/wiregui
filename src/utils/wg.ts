@@ -2,10 +2,19 @@ import { run } from "./run";
 
 export async function getActiveTunnelName(): Promise<string> {
   try {
-    const wgCmd = process.platform === "darwin"
-      ? "PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin sudo wg show"
-      : "wg show";
-    const data = await run(wgCmd, false);
+    // macOS: wg show returns utun3 (interface name) not tunnel name
+    // Use /var/run/wireguard/*.name files to get the actual tunnel name
+    if (process.platform === "darwin") {
+      const fs = require("fs");
+      const dir = "/var/run/wireguard";
+      if (!fs.existsSync(dir)) return "";
+      const files = fs.readdirSync(dir).filter((f: string) => f.endsWith(".name"));
+      if (files.length === 0) return "";
+      const tunnelName = files[0].replace(".name", "");
+      return tunnelName;
+    }
+
+    const data = await run("wg show", false);
     if (data.stderr) {
       throw new Error(Buffer.isBuffer(data.stderr) ? data.stderr.toString("utf-8") : data.stderr);
     }

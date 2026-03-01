@@ -6,7 +6,7 @@ ipcMain.handle("get-wg-stats", async () => {
     // Linux : sudoers NOPASSWD, macOS : sudoers NOPASSWD aussi
     const command = process.platform === "win32"
       ? "wireguard /dumplog"
-      : "sudo wg show";
+      : "PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin sudo wg show";
 
     exec(command, (error, stdout) => {
       if (error) {
