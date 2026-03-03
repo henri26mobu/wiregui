@@ -57,22 +57,22 @@ Head to the [**Releases**](https://github.com/henri26mobu/wiregui/releases) page
 
 ### Linux (Debian/Ubuntu)
 
-\`\`\`bash
+```bash
 sudo dpkg -i wiregui_x.x.x_amd64.deb
-\`\`\`
+```
 
 ### Linux (Fedora/CentOS)
 
-\`\`\`bash
+```bash
 sudo rpm -i wiregui-x.x.x-1.x86_64.rpm
-\`\`\`
+```
 
 ### Linux (AppImage)
 
-\`\`\`bash
+```bash
 chmod +x wiregui-x.x.x-x86_64.AppImage
 ./wiregui-x.x.x-x86_64.AppImage
-\`\`\`
+```
 
 ---
 
@@ -90,13 +90,13 @@ chmod +x wiregui-x.x.x-x86_64.AppImage
 
 ## Build from source
 
-\`\`\`bash
+```bash
 git clone https://github.com/henri26mobu/wiregui.git
 cd wiregui
 yarn install
 yarn start
 yarn make
-\`\`\`
+```
 
 ---
 
