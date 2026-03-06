@@ -1,7 +1,7 @@
 {
   "name": "wiregui",
   "productName": "wiregui",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "description": "A graphical user interface for wireguard",
   "main": ".webpack/main",
   "scripts": {
@@ -61,7 +61,11 @@
           "name": "@electron-forge/maker-rpm",
           "config": {
             "options": {
-              "icon": "./src/assets/icons/icon.png"
+              "icon": "./src/assets/icons/icon.png",
+              "scripts": {
+                "postInstall": "./scripts/postinst.sh",
+                "postUninstall": "./scripts/postrm.sh"
+              }
             }
           }
         },
