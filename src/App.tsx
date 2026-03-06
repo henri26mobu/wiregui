@@ -31,15 +31,23 @@ function App() {
 
   const [setupRequired, setSetupRequired] = React.useState(false);
 
+  const isAppImage = !!process.env.APPIMAGE;
+
   useEffect(() => {
-    if (process.platform === "darwin") {
+    // macOS ou AppImage Linux : afficher la modale de setup si sudoers absent
+    if (process.platform === "darwin" || isAppImage) {
       ipcRenderer.on("setup-required", () => setSetupRequired(true));
     }
     return () => { ipcRenderer.removeAllListeners("setup-required"); };
   }, []);
 
   async function handleInstallSudoers() {
-    const result = await ipcRenderer.invoke("install-sudoers-macos") as { success: boolean; error?: string };
+    // Appeler le bon handler selon la plateforme
+    const handler = process.platform === "darwin"
+      ? "install-sudoers-macos"
+      : "install-sudoers-appimage";
+
+    const result = await ipcRenderer.invoke(handler) as { success: boolean; error?: string };
     if (result.success) {
       setSetupRequired(false);
       toast("Configuration installed successfully", { type: "success" });

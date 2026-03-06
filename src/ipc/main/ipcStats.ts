@@ -6,10 +6,13 @@ ipcMain.handle("get-wg-stats", async () => {
     let command: string;
 
     if (process.platform === "darwin") {
-      // macOS : sudo via sudoers NOPASSWD (patché séparément)
+      // macOS : sudo via sudoers NOPASSWD
       command = "PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin sudo wg show";
+    } else if (process.env.APPIMAGE) {
+      // AppImage (Arch, Manjaro...) : sudo via sudoers NOPASSWD, setcap non disponible
+      command = "PATH=/usr/local/bin:/usr/bin:/bin sudo wg show";
     } else {
-      // Linux (Debian, Fedora, Arch...) : setcap cap_net_admin appliqué au postinstall
+      // Linux .deb / .rpm : setcap cap_net_admin appliqué au postinstall
       command = "PATH=/usr/local/bin:/usr/bin:/bin wg show";
     }
 
