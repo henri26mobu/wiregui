@@ -63,8 +63,8 @@
             "options": {
               "icon": "./src/assets/icons/icon.png",
               "scripts": {
-                "postInstall": "./scripts/postinst.sh",
-                "postUninstall": "./scripts/postrm.sh"
+                "post": "./scripts/postinst.sh",
+                "postun": "./scripts/postrm.sh"
               }
             }
           }
