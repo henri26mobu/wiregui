@@ -85,6 +85,30 @@ chmod +x wiregui-x.x.x-x86_64.AppImage
 
 ---
 
+## Known issues & community fixes
+
+### DNS not working after tunnel activation (Arch / Manjaro)
+
+Conflict between `wg-quick`, `openresolv` and `NetworkManager`.  
+Fix — run these commands once after installing WireGuard:
+```bash
+sudo pacman -S wireguard-tools openresolv polkit
+sudo tee /etc/NetworkManager/conf.d/rc-manager.conf << 'END'
+[main]
+rc-manager=resolvconf
+END
+sudo ln -sf /run/resolvconf/resolv.conf /etc/resolv.conf
+sudo resolvconf -u
+sudo systemctl restart NetworkManager
+```
+
+### Stats unavailable on Fedora with AppImage
+
+Fedora's SELinux blocks `sudo` calls from Electron processes without a TTY.  
+Use the `.rpm` package instead — it automatically configures the correct permissions via `setcap`.
+
+---
+
 ## Build from source
 ```bash
 git clone https://github.com/henri26mobu/wiregui.git
