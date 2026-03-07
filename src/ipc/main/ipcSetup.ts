@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from "electron";
+import { ipcMain } from "electron";
 import { exec } from "child_process";
 import * as fs from "fs";
 
@@ -12,12 +12,16 @@ export function checkSudoersSetup(mainWindow: Electron.BrowserWindow): void {
     return;
   }
 
-  // AppImage sur Linux : vérifier sudoers pour wg
+  // AppImage sur Linux : tester réellement si sudo -n wg fonctionne sans mot de passe
   if (process.env.APPIMAGE) {
-    const sudoersFile = "/etc/sudoers.d/wiregui";
-    if (!fs.existsSync(sudoersFile)) {
-      mainWindow.webContents.send("setup-required");
-    }
+    exec("sudo -n /usr/bin/wg show 2>&1", (error, stdout, stderr) => {
+      const output = stderr || "";
+      // Si "password is required" → sudoers pas configuré
+      if (output.includes("password is required") || output.includes("a password is required")) {
+        mainWindow.webContents.send("setup-required");
+      }
+      // Sinon (vide ou liste interfaces) → sudoers OK, pas de popup
+    });
   }
 }
 
