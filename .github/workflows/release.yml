@@ -57,7 +57,7 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
       - name: Build .AppImage
-        run: npx electron-forge make --targets electron-forge-maker-appimage
+        run: npx electron-forge make --targets @reforged/maker-appimage
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
