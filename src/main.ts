@@ -39,7 +39,7 @@ ipcMain.on("export-config", async (event, { fileName, content }: { fileName: str
   }
 });
 
-try { require("update-electron-app")(); } catch(e) { console.log("update-electron-app skipped:", e.message); }// eslint-disable-line @typescript-eslint/no-var-requires
+try { const { updateElectronApp } = require("update-electron-app"); updateElectronApp(); } catch(e) { console.log("update-electron-app skipped:", e.message); }// eslint-disable-line @typescript-eslint/no-var-requires
 
 if (require("electron-squirrel-startup")) { // eslint-disable-line global-require
   app.quit();
