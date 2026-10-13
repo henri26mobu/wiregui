@@ -40,7 +40,9 @@ ipcMain.on("export-config", async (event, { fileName, content }: { fileName: str
   }
 });
 
-try { require("update-electron-app")(); } catch(e) { console.log("update-electron-app skipped:", e.message); }// eslint-disable-line @typescript-eslint/no-var-requires
+if (process.platform !== "linux") {
+  try { require("update-electron-app").updateElectronApp(); } catch(e) { console.log("update-electron-app skipped:", e.message); }// eslint-disable-line @typescript-eslint/no-var-requires
+}
 
 if (require("electron-squirrel-startup")) { // eslint-disable-line global-require
   app.quit();
@@ -109,7 +111,7 @@ app.on("second-instance", (event, commandLine, workingDirectory) => {
 
 autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
   const dialogOpts = {
-    type: "info",
+    type: "info" as const,
     buttons: ["Update", "Later"],
     title: "Application Update",
     message: process.platform === "win32" ? releaseNotes : releaseName,

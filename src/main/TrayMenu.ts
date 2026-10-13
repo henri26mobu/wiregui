@@ -6,6 +6,7 @@ import {
   MenuItem,
   MenuItemConstructorOptions,
   nativeImage,
+  NativeImage,
   Tray,
 } from "electron";
 import { getIconsPath } from "../utils";
@@ -24,9 +25,9 @@ export class TrayMenu {
 
   private contextMenu: Menu;
 
-  private readonly icon: nativeImage;
+  private readonly icon: NativeImage;
 
-  private readonly iconActive: nativeImage;
+  private readonly iconActive: NativeImage;
 
   constructor(private readonly window: BrowserWindow, isDevelopement: boolean) {
     this.tunnels = [];

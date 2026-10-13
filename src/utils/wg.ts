@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { run } from "./run";
 
 export async function getActiveTunnelName(): Promise<string> {
@@ -5,7 +6,6 @@ export async function getActiveTunnelName(): Promise<string> {
     // macOS: wg show returns utun3 (interface name) not tunnel name
     // Use /var/run/wireguard/*.name files to get the actual tunnel name
     if (process.platform === "darwin") {
-      const fs = require("fs");
       const dir = "/var/run/wireguard";
       if (!fs.existsSync(dir)) return "";
       const files = fs.readdirSync(dir).filter((f: string) => f.endsWith(".name"));
