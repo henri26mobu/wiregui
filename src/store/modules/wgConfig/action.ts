@@ -14,14 +14,17 @@ export function fetchFiles(userDataPath: string) {
     );
   
     if (!fs.existsSync(configPath)) {
-      fs.mkdirSync(configPath);
+      fs.mkdirSync(configPath, { mode: 0o700 });
     }
+    // Configs hold private keys: keep them readable by the owner only
+    fs.chmodSync(configPath, 0o700);
   
     const activeTunnelName = await getActiveTunnelName();
     const filenames = fs.readdirSync(configPath);
     const files = await Promise.all(
       filenames.map(async (filename: string) => {
         const filePath = path.join(configPath, filename);
+        fs.chmodSync(filePath, 0o600);
         const config = new WgConfig({ filePath });
         await config.parseFile();
 
@@ -60,7 +63,8 @@ export function addFile(name: string, data: string, userDataPath: string) {
     "configurations",
     name,
   );
-  fs.writeFileSync(filePath, data);
+  fs.writeFileSync(filePath, data, { mode: 0o600 });
+  fs.chmodSync(filePath, 0o600);
 
   const lastConnectAt = localStorage.getItem(name);
   const wgConfigFile: WgConfigFile = {

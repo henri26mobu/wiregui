@@ -32,7 +32,8 @@ ipcMain.on("export-config", async (event, { fileName, content }: { fileName: str
     return;
   }
   try {
-    fs.writeFileSync(result.filePath, content, "utf-8");
+    fs.writeFileSync(result.filePath, content, { encoding: "utf-8", mode: 0o600 });
+    fs.chmodSync(result.filePath, 0o600);
     event.reply("export-config-reply", { success: true, filePath: result.filePath });
   } catch (e) {
     event.reply("export-config-reply", { success: false, error: e.message });
