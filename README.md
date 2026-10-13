@@ -87,12 +87,33 @@ chmod +x wiregui-x.x.x-x86_64.AppImage
 
 ## Known issues & community fixes
 
-### DNS not working after tunnel activation (Arch / Manjaro)
+### Tunnel won't activate / DNS broken (`resolvconf: signature mismatch`)
 
-Conflict between `wg-quick`, `openresolv` and `NetworkManager`.  
-Fix — run these commands once after installing WireGuard:
+When the `.conf` has a `DNS =` line, `wg-quick` calls `resolvconf`. The right `resolvconf` implementation depends on **what manages DNS** on your distribution. Check first:
 ```bash
-sudo pacman -S wireguard-tools openresolv polkit
+readlink -f /etc/resolv.conf
+```
+
+**Case 1 — systemd-resolved** (output: `/run/systemd/resolve/stub-resolv.conf`)  
+You need systemd's `resolvconf`, which sets the DNS on the tunnel interface and removes it on disconnect. `openresolv` is incompatible: it is what causes `signature mismatch`, and `resolvconf -u` would bypass systemd-resolved.
+
+- **Arch / Manjaro / EndeavourOS / Omarchy**
+  ```bash
+  sudo pacman -Rdd openresolv              # only if installed
+  sudo pacman -S systemd-resolvconf
+  ```
+- **Fedora, Debian, Ubuntu and others**, if `resolvconf` is missing or provided by `openresolv`:
+  ```bash
+  sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf
+  ```
+  Do not install the `openresolv` or `resolvconf` packages on these systems.
+
+Check, with the tunnel up: `resolvectl dns` should list the `.conf` DNS on the tunnel interface.
+
+**Case 2 — NetworkManager without systemd-resolved** (`/etc/resolv.conf` is a regular file written by NetworkManager)  
+Use `openresolv` and route NetworkManager through it:
+```bash
+sudo pacman -S openresolv                  # Arch/Manjaro; on Debian/Ubuntu: sudo apt install openresolv
 sudo tee /etc/NetworkManager/conf.d/rc-manager.conf << 'END'
 [main]
 rc-manager=resolvconf
