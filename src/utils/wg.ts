@@ -14,6 +14,19 @@ export async function getActiveTunnelName(): Promise<string> {
       return tunnelName;
     }
 
+    // Linux: `wg show` needs CAP_NET_ADMIN (setcap/sudoers), which Arch-based
+    // distros do not get. Listing wireguard links needs no privileges.
+    if (process.platform === "linux") {
+      try {
+        const links = await run("ip -br link show type wireguard", false);
+        const out = Buffer.isBuffer(links.stdout) ? links.stdout.toString("utf-8") : links.stdout || "";
+        const name = out.split("\n")[0].trim().split(/\s+/)[0].split("@")[0];
+        return name || "";
+      } catch (e) {
+        // `ip` unavailable: fall back to `wg show` below
+      }
+    }
+
     const data = await run("wg show", false);
     if (data.stderr) {
       throw new Error(Buffer.isBuffer(data.stderr) ? data.stderr.toString("utf-8") : data.stderr);
@@ -56,6 +69,11 @@ export async function getActiveTunnelName(): Promise<string> {
 
       const indexOfName = splittedText[0].lastIndexOf(" ");
       tunnelName = splittedText[0].substring(indexOfName + 1, splittedText[0].length);
+
+      // Linux prints "Unable to access interface: ..." without the name
+      if (tunnelName === "interface") {
+        tunnelName = "";
+      }
     }
 
     return tunnelName;
